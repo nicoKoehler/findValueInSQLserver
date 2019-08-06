@@ -16,10 +16,8 @@ Execute with caution and only if you truely understand what the script is doing.
 >>   
 >>> Check if the column matches the search criteria
 >>>	If success, log the database, table and field to table
-          
- 
- 
- Print out table
+>
+> Print out table
  
  ## Specifics
  + not data type specific, which increases runtime, but avoids missing values. If you know exactly the data type of potential match columns, enable data type filters
