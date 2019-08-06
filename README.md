@@ -6,16 +6,16 @@ Execute with caution and only if you truely understand what the script is doing.
 ## PseudoCode
 > Set search term
 > While there are tables in the system master database
-   select minimum database that is greater than the last table name processed
-
+> 	select minimum database that is greater than the last table name processed
+>
 >> While there are tables in that Database
-   select minimum table that is greater than the last table name processed from Information_schema
-
+>>	select minimum table that is greater than the last table name processed from Information_schema
+>
 >> While there are columns in that table
-   select minimum column that is greater than the last table name processed from Information_schema
-   
+>>   	select minimum column that is greater than the last table name processed from Information_schema
+>>   
 >>> Check if the column matches the search criteria
-    If success, log the database, table and field to table
+>>>	If success, log the database, table and field to table
           
  
  
@@ -26,9 +26,15 @@ Execute with caution and only if you truely understand what the script is doing.
  + uses sp_executesql to utilize parameters in search criteria
  
  ## Measured Performance 
+ #### Run-1
  + Database Size: 19.75 GB (w/o Logs)
- + Runtime: 16.5 minutes
+ + Runtime: 16.8 minutes
+ 
+ #### Run-2
+ + Database Size: 2.87 GB (w/o Logs)
+ + Runtime: 2.3 minutes
         
+ Linear search time: ~ 1.3 minutes per GB
  Database size estimated using the query:
   
 ```
