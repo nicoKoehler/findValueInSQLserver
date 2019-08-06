@@ -19,9 +19,11 @@ Execute with caution and only if you truely understand what the script is doing.
 >
 > Print out table
  
+ 
  ## Specifics
  + not data type specific, which increases runtime, but avoids missing values. If you know exactly the data type of potential match columns, enable data type filters
  + uses sp_executesql to utilize parameters in search criteria
+ 
  
  ## Measured Performance 
  #### Run-1
