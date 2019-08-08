@@ -30,10 +30,9 @@ begin
 	select MIN(QUOTENAME([name]))
 	from master.sys.databases with (nolock)
 	where QUOTENAME([name]) > @dbName
-	and [name] = 'analytics'
 	)
 
-
+	-- WHILE TABLES CAN BE FETCHED
 	WHILE @dbName is not null and @TableName IS NOT NULL
 
 	BEGIN
@@ -54,17 +53,16 @@ begin
 
 		exec sp_executesql @sql,N'@TableName nvarchar(max), @tableTmp nvarchar(max) OUTPUT' , @TableName=@TableName,@tableTmp=@TableName OUTPUT
 		
-		print @TableName + ' >> ' + @SearchStr2
 
+		-- DETERMINE IF SEARCH HAS BEEN DONE IN TABLE BEFORE
 		if (select COUNT(*) from analytics.stat.scan_TablesScanned where schemaTable = @TableName and searchTerm = @SearchStr2) > 0
 		begin
-			print 'skipping!'
+			-- SKIP ROW; SET WRITE CHARACTER TO FALSE, SO BELOW RECORD STATEMENT IS SKIPPED
 			set @write = 0
 			continue
 		end
 
-		print @dbName + '.' + @TableName
-
+		-- AS LONG AS COLUMN EXISTS
 		WHILE (@TableName IS NOT NULL) AND (@ColumnName IS NOT NULL)
          
 		BEGIN
@@ -81,8 +79,6 @@ begin
 
 			exec sp_executesql @colSQL, N'@ColumnName nvarchar(max), @TableName nvarchar(max), @coltmp nvarchar(max) OUT', @TableName=@TableName, @ColumnName=@ColumnName, @coltmp=@ColumnName OUT
 
-			--GOTO Theend
-			
 			
 			IF @ColumnName IS NOT NULL
 			
@@ -90,21 +86,24 @@ begin
 				set @countRes = 0
 				set @from = @dbName+'.'+@TableName
 				
-
+				-- COUNT RESULTS FOR SEARCH IN TARGET TABLE OF DB+SCHEMA+TABLE+COLUMN
 				declare @searchSQL nvarchar(max) = N'SELECT @countRes = count(*) FROM '+@from+ N' with (nolock) where '+@ColumnName+' LIKE @SearchStr2' 
 					
 				exec sp_executesql @searchSQL, N'@ColumnName nvarchar(max), @SearchStr2 nvarchar(max), @countRes int OUTPUT', @ColumnName=@ColumnName, @SearchStr2=@SearchStr2, @countRes=@countRes OUTPUT
 
+				-- IF RESULTS FOUND, WRITE TO RESULTS TABLE
 				if @countRes > 0
 				begin
-					insert into analytics.stat.scan_results (searchTerm, dbName, schemaTable, columnName, nbrOfHits) values(@SearchStr2, @dbName, @TableName, @ColumnName, @countRes)
+					insert into [yourBaseDB].[schema].[resultsTable] (searchTerm, dbName, schemaTable, columnName, nbrOfHits) values(@SearchStr2, @dbName, @TableName, @ColumnName, @countRes)
 				end
 
 			END
 		END 
+
+		-- LOG EVERY TABLE THAT HAS BEEN SEARCHED, UNLESS TABLE HAS BEEN SEARCHED BEFORE
 		if @write = 1
 		begin
-			insert into analytics.stat.scan_tablesScanned (searchTerm, dbName, schemaTable, searchDescription) values(@SearchStr2, @dbName, @TableName, @SearchDesc)
+			insert into [yourBaseDB].[schema].[resultsTable] (searchTerm, dbName, schemaTable, searchDescription) values(@SearchStr2, @dbName, @TableName, @SearchDesc)
 		end
 	END
 end
