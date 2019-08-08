@@ -2,6 +2,30 @@
 *Note that this script may take a long time and may impact server performance. 
 Execute with caution and only if you truely understand what the script is doing.*
 
+## Files
+#### Published Version
+-> Includes generic Table placeholders for results and history
+-> Tables are defined as 
+```
+CREATE TABLE [stat].[scan_TablesScanned](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[searchTerm] [nvarchar](max) NULL,
+	[dbName] [nvarchar](max) NULL,
+	[schemaTable] [nvarchar](max) NULL,
+	[execDate] [datetime] NULL,
+	[searchDescription] [nvarchar](max) NULL
+) 
+
+CREATE TABLE [stat].[scan_results](
+	[id] [int] IDENTITY(1,1) NOT NULL,
+	[searchTerm] [nvarchar](max) NULL,
+	[dbName] [nvarchar](max) NULL,
+	[schemaTable] [nvarchar](max) NULL,
+	[columnName] [nvarchar](max) NULL,
+	[nbrOfHits] [nvarchar](max) NULL,
+	[execDate] [datetime] NULL
+)
+```
 
 ## PseudoCode
 > Set search term
